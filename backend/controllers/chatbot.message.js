@@ -1,18 +1,13 @@
-import Bot from "../models/bot.model.js";
-import User from "../models/user.model.js";
-
 export const Message=async(req,res)=>{
    try {
     const {text}=req.body;
- 
+
     if(!text?.trim()){
         return res.status(400).json({error:"Text cannot be empty"});
     }
 
-    const user=await User.create({
-        sender:"user",
-        text
-    })
+    // Mock user message
+    const userMessage = text;
 
     // Data
     const botResponses={
@@ -50,19 +45,17 @@ export const Message=async(req,res)=>{
 "what is ipl": "The Indian Premier League (IPL) is a professional T20 cricket league started in 2008.\n• Played annually in India, franchise-based teams\n• Combines cricket + entertainment (biggest sports league in India)\n• Significant for sports business, sponsorships, brand endorsements\n• Example: Chennai Super Kings (CSK) & Mumbai Indians (MI) are top teams"
 
 
+
+
 }
 
 const normalizedText = text.toLowerCase().trim();
 
 const botResponse = botResponses[normalizedText] || "Sorry, I don't understand that!!!";
 
-const bot = await Bot.create({
-    text: botResponse
-})
-
 return res.status(200).json({
-    userMessage:user.text,
-    botMessage:bot.text,
+    userMessage:userMessage,
+    botMessage:botResponse,
 })
    } catch (error) {
     console.log("Error in Message Controller:", error);

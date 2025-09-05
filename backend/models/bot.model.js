@@ -1,17 +1,16 @@
 import mongoose from "mongoose";
 
-const userSchema = new mongoose.Schema({
+const botSchema=new mongoose.Schema({
+    
     text:{
-        type: String,
-        required: true
-
+        type:String,
+        required:true
     },
-    timestamp:{
-        type: Date,
-        default: Date.now
+    timstamp:{
+        type:Date,
+        default:Date.now
     }
-});
+})
 
-const Bot= mongoose.model('Bot', userSchema);
-
+const Bot=mongoose.model("Bot",botSchema)
 export default Bot;

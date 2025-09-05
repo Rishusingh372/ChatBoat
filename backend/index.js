@@ -1,28 +1,33 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
-
+import cors from 'cors';
 import chatbotRoutes from './routes/chatbot.route.js';
 
-dotenv.config();
-const app = express();
+const app = express()
+dotenv.config()
 
-const PORT = process.env.PORT || 5000;
+const port =process.env.PORT || 5400
 
-// Database connection
+// middleware
+app.use(express.json());
+app.use(cors({
+  origin: 'http://localhost:5173',
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}))
+
+//Database Connection code
 mongoose.connect(process.env.MONGO_URI)
 .then(()=>{
-    console.log("Connected to MongoDB");
+    console.log("Connected to MongoDB")
+}).catch((error)=>{
+    console.log("Error connecting to MongoDB:", error)
 })
-.catch((err)=>{
-    console.error("Error connecting to MongoDB:", err);
-});
 
+// Defining Routes
+app.use("/bot/v1/", chatbotRoutes)
 
-// Define Routes
-app.use("/bot/v1/", chatbotRoutes);
-
-
-app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
-});
+app.listen(port, () => {
+  console.log(`Server is Running on Port ${port}`)
+})
