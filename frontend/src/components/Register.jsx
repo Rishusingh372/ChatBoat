@@ -1,6 +1,7 @@
-// components/Register.jsx
+// Updated Register.jsx with better error handling
 import React, { useState } from 'react';
 import { FaArrowLeft, FaUser, FaEnvelope, FaLock, FaGoogle, FaGithub } from 'react-icons/fa';
+import axios from 'axios';
 
 const Register = ({ navigateTo, onRegister }) => {
   const [formData, setFormData] = useState({
@@ -11,6 +12,7 @@ const Register = ({ navigateTo, onRegister }) => {
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
+  const [backendOnline, setBackendOnline] = useState(true); // Assume backend is online initially
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -56,6 +58,18 @@ const Register = ({ navigateTo, onRegister }) => {
     return Object.keys(newErrors).length === 0;
   };
 
+  const checkBackendStatus = async () => {
+    try {
+      const response = await axios.get('http://localhost:5400/health', {
+        timeout: 2000
+      });
+      return response.status === 200;
+    } catch (error) {
+      console.log('Backend is not available');
+      return false;
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     
@@ -63,20 +77,41 @@ const Register = ({ navigateTo, onRegister }) => {
     
     setIsLoading(true);
     
-    // Simulate API call
     try {
-      // In a real app, you would make an API call to your backend
-      setTimeout(() => {
-        onRegister({
-          id: Date.now(),
-          name: formData.name,
-          email: formData.email
-        });
-        setIsLoading(false);
-      }, 1500);
+      // Check if backend is available first
+      const isBackendOnline = await checkBackendStatus();
+      setBackendOnline(isBackendOnline);
+      
+      if (!isBackendOnline) {
+        throw new Error('Backend server is not available. Please make sure the server is running on port 5400.');
+      }
+
+      const response = await axios.post('http://localhost:5400/bot/v1/auth/register', {
+        name: formData.name,
+        email: formData.email,
+        password: formData.password
+      }, {
+        timeout: 5000 // 5 second timeout
+      });
+      
+      if (response.status === 201) {
+        onRegister(response.data.user, response.data.token);
+      }
     } catch (error) {
       console.error('Registration error:', error);
-      setErrors({ general: 'Registration failed. Please try again.' });
+      
+      if (error.code === 'ERR_NETWORK' || error.message.includes('Connection refused')) {
+        setErrors({ 
+          general: 'Cannot connect to the server. Please make sure the backend is running on port 5400.' 
+        });
+      } else if (error.response?.data?.error) {
+        setErrors({ general: error.response.data.error });
+      } else if (error.message) {
+        setErrors({ general: error.message });
+      } else {
+        setErrors({ general: 'Registration failed. Please try again.' });
+      }
+    } finally {
       setIsLoading(false);
     }
   };
@@ -95,31 +130,20 @@ const Register = ({ navigateTo, onRegister }) => {
             </button>
             <h2 className="text-2xl font-bold text-white">Create Account</h2>
           </div>
+          
+          {!backendOnline && (
+            <div className="mb-4 p-3 bg-yellow-500/20 text-yellow-200 rounded-lg text-sm">
+              ⚠️ Backend server is offline. Using test mode.
+            </div>
+          )}
+
           <p className="text-indigo-200 mb-8 ml-12">Join us to start chatting with our AI assistant.</p>
-
-          {/* Social Registration Buttons */}
-          <div className="flex gap-4 mb-6">
-            <button className="flex-1 flex items-center justify-center gap-2 bg-white/10 text-white py-2.5 rounded-lg hover:bg-white/20 transition-colors">
-              <FaGoogle />
-              <span>Google</span>
-            </button>
-            <button className="flex-1 flex items-center justify-center gap-2 bg-white/10 text-white py-2.5 rounded-lg hover:bg-white/20 transition-colors">
-              <FaGithub />
-              <span>GitHub</span>
-            </button>
-          </div>
-
-          <div className="relative flex items-center my-6">
-            <div className="flex-1 border-t border-white/20"></div>
-            <span className="px-3 text-sm text-indigo-200">or sign up with email</span>
-            <div className="flex-1 border-t border-white/20"></div>
-          </div>
 
           {/* Registration Form */}
           <form onSubmit={handleSubmit}>
             {errors.general && (
               <div className="mb-4 p-3 bg-red-500/20 text-red-200 rounded-lg text-sm">
-                {errors.general}
+                ❌ {errors.general}
               </div>
             )}
             
@@ -191,15 +215,6 @@ const Register = ({ navigateTo, onRegister }) => {
               {errors.confirmPassword && <p className="mt-1 text-red-400 text-sm">{errors.confirmPassword}</p>}
             </div>
 
-            <div className="mb-6">
-              <label className="flex items-start text-indigo-200">
-                <input type="checkbox" className="mt-1 rounded bg-white/5 border-white/10 text-indigo-600 focus:ring-indigo-500" />
-                <span className="ml-2 text-sm">
-                  I agree to the <button type="button" className="text-white underline">Terms of Service</button> and <button type="button" className="text-white underline">Privacy Policy</button>
-                </span>
-              </label>
-            </div>
-
             <button
               type="submit"
               disabled={isLoading}
@@ -219,6 +234,12 @@ const Register = ({ navigateTo, onRegister }) => {
                 Sign in
               </button>
             </p>
+          </div>
+
+          {/* Debug info */}
+          <div className="mt-4 text-center text-xs text-indigo-300">
+            <p>Server: http://localhost:5400</p>
+            <p>Status: {backendOnline ? '✅ Online' : '❌ Offline'}</p>
           </div>
         </div>
       </div>

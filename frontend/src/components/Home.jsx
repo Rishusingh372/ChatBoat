@@ -1,7 +1,6 @@
-// components/Home.jsx
 import React from 'react';
 
-const Home = ({ navigateTo }) => {
+const Home = ({ navigateTo, isLoggedIn }) => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-900 to-purple-800 flex flex-col items-center justify-center p-6">
       <div className="w-full max-w-4xl mx-auto">
@@ -12,18 +11,29 @@ const Home = ({ navigateTo }) => {
             <p className="text-indigo-200 mt-2">Your AI Chat Assistant</p>
           </div>
           <div className="flex space-x-4">
-            <button 
-              onClick={() => navigateTo('login')}
-              className="px-6 py-2 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              Sign In
-            </button>
-            <button 
-              onClick={() => navigateTo('register')}
-              className="px-6 py-2 bg-white text-indigo-700 font-medium rounded-lg hover:bg-indigo-100 transition-colors"
-            >
-              Sign Up
-            </button>
+            {isLoggedIn ? (
+              <button 
+                onClick={() => navigateTo('bot')}
+                className="px-6 py-2 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600 transition-colors"
+              >
+                Go to Chat
+              </button>
+            ) : (
+              <>
+                <button 
+                  onClick={() => navigateTo('login')}
+                  className="px-6 py-2 text-white font-medium rounded-lg hover:bg-indigo-700 transition-colors"
+                >
+                  Sign In
+                </button>
+                <button 
+                  onClick={() => navigateTo('register')}
+                  className="px-6 py-2 bg-white text-indigo-700 font-medium rounded-lg hover:bg-indigo-100 transition-colors"
+                >
+                  Sign Up
+                </button>
+              </>
+            )}
           </div>
         </header>
 
@@ -38,18 +48,29 @@ const Home = ({ navigateTo }) => {
               interview preparation, general knowledge, and much more.
             </p>
             <div className="flex flex-wrap gap-4">
-              <button 
-                onClick={() => navigateTo('register')}
-                className="px-8 py-3 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600 transition-colors"
-              >
-                Get Started Free
-              </button>
-              <button 
-                onClick={() => navigateTo('login')}
-                className="px-8 py-3 bg-transparent border-2 border-white text-white font-medium rounded-lg hover:bg-white hover:text-indigo-700 transition-colors"
-              >
-                Try Demo
-              </button>
+              {isLoggedIn ? (
+                <button 
+                  onClick={() => navigateTo('bot')}
+                  className="px-8 py-3 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600 transition-colors"
+                >
+                  Start Chatting
+                </button>
+              ) : (
+                <>
+                  <button 
+                    onClick={() => navigateTo('register')}
+                    className="px-8 py-3 bg-green-500 text-white font-medium rounded-lg hover:bg-green-600 transition-colors"
+                  >
+                    Get Started Free
+                  </button>
+                  <button 
+                    onClick={() => navigateTo('login')}
+                    className="px-8 py-3 bg-transparent border-2 border-white text-white font-medium rounded-lg hover:bg-white hover:text-indigo-700 transition-colors"
+                  >
+                    Try Demo
+                  </button>
+                </>
+              )}
             </div>
           </div>
           <div className="md:w-1/2 flex justify-center">

@@ -1,6 +1,6 @@
-// components/Login.jsx
 import React, { useState } from 'react';
 import { FaArrowLeft, FaUser, FaLock, FaGoogle, FaGithub } from 'react-icons/fa';
+import axios from 'axios';
 
 const Login = ({ navigateTo, onLogin }) => {
   const [formData, setFormData] = useState({
@@ -51,20 +51,20 @@ const Login = ({ navigateTo, onLogin }) => {
     
     setIsLoading(true);
     
-    // Simulate API call
     try {
-      // In a real app, you would make an API call to your backend
-      setTimeout(() => {
-        onLogin({
-          id: 1,
-          name: 'John Doe',
-          email: formData.email
-        });
-        setIsLoading(false);
-      }, 1500);
+      const response = await axios.post('http://localhost:5400/bot/v1/auth/login', formData);
+      
+      if (response.status === 200) {
+        onLogin(response.data.user, response.data.token);
+      }
     } catch (error) {
       console.error('Login error:', error);
-      setErrors({ general: 'Invalid email or password' });
+      if (error.response?.data?.error) {
+        setErrors({ general: error.response.data.error });
+      } else {
+        setErrors({ general: 'Login failed. Please try again.' });
+      }
+    } finally {
       setIsLoading(false);
     }
   };
