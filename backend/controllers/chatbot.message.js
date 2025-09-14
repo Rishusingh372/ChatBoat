@@ -16,36 +16,54 @@ export const Message = async (req, res) => {
         sender: 'user'
     });
 
-    // Free ChatGPT API integration (using DeepAI)
-    let botResponse = "Sorry, I'm having trouble responding right now.";
+    let botResponse = "I'm here to help! What would you like to know?";
     
+    // Use DeepAI API with your key
     try {
       const response = await fetch('https://api.deepai.org/api/text-generator', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Api-Key': process.env.DEEPAI_API_KEY || 'quickstart-ai' // Free tier key
+          'Api-Key': process.env.DEEPAI_API_KEY
         },
         body: JSON.stringify({
           text: text
         })
       });
       
-      const data = await response.json();
-      botResponse = data.output || "I received your message but couldn't generate a proper response.";
+      if (response.ok) {
+        const data = await response.json();
+        botResponse = data.output || "I received your message but couldn't generate a proper response.";
+        
+        // Clean up the response (sometimes DeepAI returns extra text)
+        if (botResponse.includes('###')) {
+          botResponse = botResponse.split('###')[0].trim();
+        }
+      } else {
+        console.log("DeepAI API returned error status:", response.status);
+        throw new Error('DeepAI API failed');
+      }
     } catch (apiError) {
-      console.log("API Error:", apiError);
-      // Fallback responses
+      console.log("DeepAI API Error:", apiError.message);
+      
+      // Fallback to simple responses if API fails
       const fallbackResponses = {
         "hello": "Hi there! How can I help you today?",
+        "hi": "Hello! How can I assist you?",
+        "hey": "Hey there! What's on your mind?",
         "how are you": "I'm doing well, thank you for asking! How about you?",
         "what is your name": "I'm ChatBot, your friendly AI assistant!",
+        "who are you": "I'm an AI chatbot created to help answer your questions!",
         "bye": "Goodbye! Have a great day!",
-        "thank you": "You're welcome! Is there anything else I can help with?"
+        "goodbye": "See you later! Feel free to come back anytime!",
+        "thank you": "You're welcome! Is there anything else I can help with?",
+        "thanks": "Happy to help! What else would you like to know?",
+        "what can you do": "I can answer questions, have conversations, and help with various topics!",
+        "default": "I'm here to help! What would you like to know?"
       };
       
       const normalizedText = text.toLowerCase().trim();
-      botResponse = fallbackResponses[normalizedText] || "I'm here to help! What else would you like to know?";
+      botResponse = fallbackResponses[normalizedText] || fallbackResponses.default;
     }
 
     // Save bot response to database

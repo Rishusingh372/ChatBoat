@@ -4,12 +4,13 @@ import mongoose from 'mongoose';
 import cors from 'cors';
 import chatbotRoutes from './routes/chatbot.route.js';
 
-const app = express();
+// Load environment variables
 dotenv.config();
 
+const app = express();
 const port = process.env.PORT || 5400;
 
-// CORS middleware
+// Basic CORS configuration
 app.use(cors({
   origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
   credentials: true
@@ -20,7 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Database Connection
-mongoose.connect(process.env.MONGO_URI)
+mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/chatbotdb')
 .then(() => {
     console.log("Connected to MongoDB");
 }).catch((error) => {
@@ -43,6 +44,13 @@ app.use('*', (req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
+// Error handling middleware
+app.use((error, req, res, next) => {
+  console.error('Server error:', error);
+  res.status(500).json({ error: 'Internal server error' });
+});
+
 app.listen(port, () => {
   console.log(`Server is Running on Port ${port}`);
+  console.log(`Health check: http://localhost:${port}/health`);
 });
