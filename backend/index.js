@@ -40,7 +40,7 @@ app.get('/health', (req, res) => {
 });
 
 // Handle undefined routes
-app.use('*', (req, res) => {
+app.use((req, res) => {
   res.status(404).json({ error: 'Route not found' });
 });
 
