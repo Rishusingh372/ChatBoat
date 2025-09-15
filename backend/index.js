@@ -8,11 +8,11 @@ import chatbotRoutes from './routes/chatbot.route.js';
 dotenv.config();
 
 const app = express();
-const port = process.env.PORT || 5400;
+const port = 3000;
 
 // Basic CORS configuration
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
+  origin: ['http://localhost:5173', 'http://127.0.0.1:5173', 'http://localhost:5174', 'http://127.0.0.1:5174'],
   credentials: true
 }));
 
@@ -21,6 +21,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
 // Database Connection
+console.log('Before connect');
 mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/chatbotdb')
 .then(() => {
     console.log("Connected to MongoDB");
@@ -29,7 +30,9 @@ mongoose.connect(process.env.MONGO_URI || 'mongodb://localhost:27017/chatbotdb')
 });
 
 // Routes
+console.log('Before routes');
 app.use("/api", chatbotRoutes);
+console.log('After routes');
 
 // Health check endpoint
 app.get('/health', (req, res) => {
@@ -53,4 +56,4 @@ app.use((error, req, res, next) => {
 app.listen(port, () => {
   console.log(`Server is Running on Port ${port}`);
   console.log(`Health check: http://localhost:${port}/health`);
-});   
+});
