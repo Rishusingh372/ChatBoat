@@ -59,7 +59,12 @@ export const Message = async (req, res) => {
         "thank you": "You're welcome! Is there anything else I can help with?",
         "thanks": "Happy to help! What else would you like to know?",
         "what can you do": "I can answer questions, have conversations, and help with various topics!",
-        "default": "I'm here to help! What would you like to know?"
+        "default": "I'm here to help! What would you like to know?",
+        "java script": "JavaScript is a versatile programming language commonly used for web development.",
+        "node js": "Node.js is a runtime environment that allows you to run JavaScript on the server side.",
+        "react js": "React.js is a popular JavaScript library for building user interfaces, especially single-page applications.",
+        "mongodb": "MongoDB is a NoSQL database that stores data in flexible, JSON-like documents.",
+        "express js": "Express.js is a web application framework for Node.js, designed for building web applications and APIs."
       };
       
       const normalizedText = text.toLowerCase().trim();

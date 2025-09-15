@@ -1,4 +1,4 @@
-import express from 'express';
+ import express from 'express';
 import dotenv from 'dotenv';
 import mongoose from 'mongoose';
 import cors from 'cors';
@@ -53,4 +53,4 @@ app.use((error, req, res, next) => {
 app.listen(port, () => {
   console.log(`Server is Running on Port ${port}`);
   console.log(`Health check: http://localhost:${port}/health`);
-});
+});   
